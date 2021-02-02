@@ -2,6 +2,7 @@ import pytesseract
 import cv2
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 def object_map(imgdir,csvdir):
 
   for file in os.listdir(imgdir):
@@ -13,18 +14,26 @@ def object_map(imgdir,csvdir):
 
     small = cv2.cvtColor(large, cv2.COLOR_BGR2GRAY)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
 
+    grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
 
     _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-    dilate = cv2.dilate(bw, kernel, iterations=3)
 
+    dilate = cv2.dilate(bw, kernel, iterations=1)
+
+    cv2.imshow('ssa',dilate)
+    #plt.imshow(dilate)
+    #plt.show()
+
+
+    cv2.waitKey(0)
     contours, hierarchy = cv2.findContours(dilate.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+    kk=file
+    print(contours)
     mask = np.zeros(bw.shape, dtype=np.uint8)
     i=large
     for idx in range(len(contours)):
@@ -40,8 +49,9 @@ def object_map(imgdir,csvdir):
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     image = cv2.imread(img_file,0)
     print(img_file)
-    arr = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'total', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o',
-     'o', 'o', 'o', 'o', 'date', 'o', 'o', 'o', 'ee', 'o']
+    arr = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'total', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o',
+           'o', 'o',
+           'o', 'o', 'o', 'o', 'date', 'o', 'o', 'o', 'ee', 'o']
     count =0
     with open(csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
@@ -62,8 +72,10 @@ def object_map(imgdir,csvdir):
             count+=1
             cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
             r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
-    print(roi)
 
+    print(roi)
+if __name__ == "__main__":
+     object_map('D:\\g-project\\Document_IE-master\\graph\\object test', 'D:\\g-project\\Document_IE-master\\graph\\object testt')
 
 
     #__________________________
