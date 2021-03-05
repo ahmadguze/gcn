@@ -28,11 +28,11 @@ class ObjectTree:
             >> df, obj_list = connector.connect(plot=False, export_df=False)
     '''
 
-    def __init__(self, label_column='Object'):
+    def __init__(self, label_column='text'):
         self.label_column = label_column
         self.df = None
         self.img = None
-        self.file_name = None
+        self.file_name = 'ahmad'
 
     def read(self, object_map, image, save_name):
 
@@ -78,7 +78,7 @@ class ObjectTree:
         self.file_name = save_name
         return
 
-    def connect(self, plot=True, export_df=False):
+    def connect(self, plot=True, export_df=True):
 
         '''
             This method implements the logic to generate a graph based on
@@ -556,6 +556,7 @@ class ObjectTree:
 
         graph_dict = {}
         all_items = []
+
         for src_id, row in df.iterrows():
             all_items.append(src_id)
             if row['below_obj_index'] != -1:
@@ -577,7 +578,7 @@ class ObjectTree:
             for dst in v:
                 graph_items.append(dst)
         alone_nodes = list(set(all_items) - set(graph_items))
-        content_lst = df['Object'].tolist()
+        content_lst = df['text'].tolist()
         label_lst = df['Object'].tolist()
         if alone_nodes != []:
             content_lst = [content_lst[i] for i in range(len(content_lst)) if i not in alone_nodes]
@@ -774,6 +775,7 @@ class Graph:
         #
         # 		X: Feature matrix as numpy array for input graph
         # '''
+
         G = nx.from_dict_of_lists(graph_dict)
         adj_sparse = nx.adjacency_matrix(G)
         # scipy.sparse.save_npz("./sparse_adj.npz", adj_sparse)
@@ -781,6 +783,7 @@ class Graph:
         #  print(tmp)
         #  print("**************",type(adj_sparse)) # <class 'scipy.sparse.csr.csr_matrix'>
         #  preprocess the sparse adjacency matrix returned by networkx function
+        #for resize!!!!!!
         adj_arr = np.array(adj_sparse.todense())
         # print(len(adj_arr), adj_arr)
         if self.resize:
@@ -799,7 +802,6 @@ class Graph:
         # exit()
         feat_arr = np.array(feat_list)
 
-
         # print(len(feat_arr),feat_arr)
         if self.resize:
             feat_arr = self._pad_text_features(feat_arr)
@@ -816,7 +818,7 @@ class Graph:
         return adj_sparse, feat_arr, la_arr
 
 def run(csv_dir,img_dir,matrix_dir) :
-    object_map_generation.object_map(img_dir,csv_dir)
+    #object_map_generation.object_map(img_dir,csv_dir)
     if not os.path.exists(matrix_dir):
         os.makedirs(matrix_dir)
 
@@ -833,8 +835,8 @@ def run(csv_dir,img_dir,matrix_dir) :
         img = cv2.imread(img_file, 0)
         tree = ObjectTree()
         tree.read(df, img, file_prefix)
-        graph_dict, text_list, label_list, lost_nodes = tree.connect(plot=True, export_df=False)
-
+        graph_dict, text_list, label_list, lost_nodes = tree.connect(plot=True, export_df=True)
+        #للتبعlost_nodes
         # print(graph_dict)
         # print(text_list)
         # print(label_list)

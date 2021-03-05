@@ -22,21 +22,22 @@ def sample_mask(idx, l):
     mask = np.zeros(l)
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
-
+# ماسك حسب اليبيل الother 0.8 والباقي 1
 def weight_mask(labels):
-    label_classes = ['a' , 'b' , 'c' , 'd' , 'e' , 'f' , 'g' , 'h' , 'i' , 'j' , 'k' , 'l' , 'm' , 'n' , 'o' , 'p' , 'q' , 'r' , 's' , 't' , 'u' , 'v' , 'w' , 'x' , 'y' , 'z' , 'a1' , 'b1' , 'c1' , 'd1' , 'e1' , 'f1' , 'g1' ]
+    label_classes =['o','total','date','ee']
     weight_dict = {}
     for k in label_classes:
-        if k == 'other':
+        if k == 'o':
             weight_dict[k] = 0.8
         else:
             weight_dict[k] = 1.0
+
     tmp_list = []
     for arr in labels:
         index = np.argmax(arr)
         tmp_list.append(weight_dict[label_classes[index]])
     return np.array(tmp_list)
-
+#قراءة الصفوفات لورقة وانشاء الماسك
 def load_single_graph4lstm_gcn(file_name):
 
     adj = sp.load_npz(file_name+"_adj.npz")
@@ -177,6 +178,7 @@ def normalize_adj(adj):
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt) # D^-0.5
     return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo() # D^-0.5AD^0.5
+
 
 def preprocess_adj(adj):
     """Preprocessing of adjacency matrix for simple GCN model and conversion to tuple representation."""

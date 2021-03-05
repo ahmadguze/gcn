@@ -60,8 +60,7 @@ class GCN(nn.Module):
 
         return loss
 
-
-class LSTM_GCN(nn.Module):
+class LSTM_GCN (nn.Module):
 
     # def __init__(self, input_dim, output_dim, num_features_nonzero):
     def __init__(self, embedding_dim, hidden_dim, vocab_size, output_dim):
@@ -78,6 +77,7 @@ class LSTM_GCN(nn.Module):
         # print('input dim:', input_dim)
         print('output dim:', output_dim)
         # print('num_features_nonzero:', num_features_nonzero)
+
 
 
         # self.layers = nn.Sequential(GraphConvolution(self.input_dim, args.hidden, num_features_nonzero,

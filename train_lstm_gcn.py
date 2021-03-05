@@ -20,14 +20,17 @@ seed = 123
 np.random.seed(seed)
 torch.random.manual_seed(seed)
 device = torch.device('cuda:0')
+#تحويل الadj , featyers الى tensor
 def convert_sparse_train_input1(adj, features):
     supports = preprocess_adj(adj)
     m = torch.from_numpy(supports[0]).long()
     n = torch.from_numpy(supports[1])
     support = torch.sparse.FloatTensor(m.t(), n, supports[2]).float()
 
+
+
     features = [torch.tensor(idxs, dtype=torch.long).to(device) if torch.cuda.is_available() else \
-                    torch.tensor(idxs, dtype=torch.long) for idxs in features]
+                      torch.tensor(idxs, dtype=torch.long) for idxs in features]
 
     # i = torch.from_numpy(features[0]).long()
     # v = torch.from_numpy(features[1])
@@ -47,6 +50,7 @@ def convert_sparse_train_input1(adj, features):
     return features, support
 
 
+
 def convert_loss_input(y_train, weight_mask):
     train_label = torch.from_numpy(y_train).long()
     weight_mask = torch.from_numpy(weight_mask)
@@ -58,7 +62,6 @@ def convert_loss_input(y_train, weight_mask):
     train_label = train_label.argmax(dim=1)
 
     return train_label, weight_mask
-
 # print('x :', feature)
 # print('sp:', support)
 # num_features_nonzero = feature._nnz()
@@ -66,8 +69,10 @@ def convert_loss_input(y_train, weight_mask):
 
 # net = GCN(feat_dim, num_classes, num_features_nonzero)
 net = LSTM_GCN(embedding_dim=64, hidden_dim=64, vocab_size=1076, output_dim=4)
+
 if torch.cuda.is_available():
     net = net.to(device)
+
 optimizer = optim.Adam(net.parameters(), lr=args.learning_rate)
 
 net.train()
@@ -79,6 +84,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 file_list = []
 test_list = []
 test_csv = []
+
 for file in os.listdir(img_dir):
     file_list.append(args.train_data_dir+file[:-4])
 
@@ -87,9 +93,9 @@ for file in os.listdir(test_dir):
     test_csv.append(file[:-4]+'.csv')
 print("________________________")
 val_list = random.sample(file_list, 1)
+
 train_list = list(set(file_list)-set(val_list))
-print("train_data : ", len(train_list))
-print("test_data : ", len(test_list))
+
 
 # exit()
 
@@ -101,14 +107,13 @@ for epoch in range(args.epochs):
         adj, features, train_labels, weight_mask = load_single_graph4lstm_gcn(file_name)
 
         feature, support = convert_sparse_train_input1(adj, features)
-        train_labels, weight_mask = convert_loss_input(train_labels, weight_mask)
+        train_labels , weight_mask = convert_loss_input(train_labels, weight_mask)
 
         out = net((feature, support))
         out = out[0]
-        # loss = masked_loss(out, train_labels, weight_mask)
+        loss = masked_loss(out, train_labels, weight_mask)
 
-
-        loss = weighted_loss(out, train_labels, weight_mask)
+        #loss = weighted_loss(out, train_labels, weight_mask)
 
         # print("cross entropy loss: {:.5f} ".format(loss.item()))
         loss += args.weight_decay * net.l2_loss()
@@ -130,6 +135,7 @@ for epoch in range(args.epochs):
 
 
 net.eval()
+
 
 result_list = []
 acc_list = []
@@ -154,7 +160,8 @@ for file_name in test_list:
     pred = out.argmax(dim=1)
 
     import csv
-
+    #1 0 0
+    #0.1 , 0.2, 0.2
     coordinate=[]
     label_cs =['o','total','date','ee']
     p_label = [label_cs[i.item()] for i in pred]
