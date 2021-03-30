@@ -9,7 +9,7 @@ import os
 import re
 import pandas as pd
 # sys.path.append('/Users/liheng/PycharmProjects/SROIE_GCN/graph/process_txt')
-sys.path.append('D:\\Program Files\\JetBrains\\PyCharm 2017.2.4\\Item_set\\GCN_IE\\graph\\process_txt')
+sys.path.append('C:\\Program Files\\JetBrains\\PyCharm 2017.2.4\\Item_set\\GCN_IE\\graph\\process_txt')
 
 def match_date(str):
     pattern = "\d+/\d+/\d+|\d+-\d+-\d+"
@@ -73,9 +73,9 @@ def match_amount(str):
 
 # def seg_sentence(data, stopword_path, word_dict_path):
 def seg_sentence(data):
-    stopword_path = "D:\\g-project\\Document_IE-master\\graph\process_txt\\stop_words.txt"
+    stopword_path = "C:\\Users\\ahmad\\Documents\\GitHub\\gcn\\graph\\process_txt\\stop_words.txt"
     # stopword_path = "/Users/liheng/PycharmProjects/SROIE_GCN/graph/process_txt/stop_words.txt"
-    word_dict_path = "D:\\g-project\\Document_IE-master\\graph\process_txt\\dict_all.txt"
+    word_dict_path = "C:\\Users\\ahmad\\Documents\\GitHub\\gcn\\graph\\process_txt\\dict_all.txt"
     # word_dict_path = "/Users/liheng/PycharmProjects/SROIE_GCN/graph/process_txt/dict_all.txt"
 
     # 读取停用词
@@ -110,7 +110,7 @@ def seg_sentence(data):
     return goal_data, speical_data
 
 def _generate_sentence_input(data):
-    vocab_file = "D:\\g-project\\Document_IE-master\\graph\data\\vocab.txt"
+    vocab_file = "C:\\Users\\ahmad\\Documents\\GitHub\\gcn\\graph\\process_txt\\vocab.txt"
     # vocab_file = "/Users/liheng/PycharmProjects/SROIE_GCN/graph/data/vocab.txt"
     vocab_dict = {}
     with open(vocab_file, 'r') as file:
@@ -126,7 +126,7 @@ def _generate_sentence_input(data):
 
 # def _generate_txt_vec(data, vocab_file, stopword_path, word_dict):
 def _generate_txt_vec(data):
-    vocab_file = "D:\\Program Files\\JetBrains\\PyCharm 2017.2.4\\Item_set\\GCN_IE\\graph\\data\\vocab.txt"
+    vocab_file = "C:\\Program Files\\JetBrains\\PyCharm 2017.2.4\\Item_set\\GCN_IE\\graph\\data\\vocab.txt"
     # vocab_file = "/Users/liheng/PycharmProjects/SROIE_GCN/graph/data/vocab.txt"
     vocab_list = []
     with open(vocab_file, 'r') as file:

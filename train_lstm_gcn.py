@@ -76,7 +76,6 @@ if torch.cuda.is_available():
 optimizer = optim.Adam(net.parameters(), lr=args.learning_rate)
 
 net.train()
-
 # 读取文件
 img_dir = "./graph/data/train_images"
 test_dir = "./graph/data/test_images"
@@ -92,9 +91,8 @@ for file in os.listdir(test_dir):
     test_list.append(args.test_data_dir+file[:-4])
     test_csv.append(file[:-4]+'.csv')
 print("________________________")
-val_list = random.sample(file_list, 1)
 
-train_list = list(set(file_list)-set(val_list))
+train_list = list(set(file_list))
 
 
 # exit()
@@ -163,7 +161,7 @@ for file_name in test_list:
     #1 0 0
     #0.1 , 0.2, 0.2
     coordinate=[]
-    label_cs =['o','total','date','ee']
+    label_cs =['o','name','id','mag'] #total
     p_label = [label_cs[i.item()] for i in pred]
     r_label = [label_cs[np.argmax(i)] for i in test_labels]
 

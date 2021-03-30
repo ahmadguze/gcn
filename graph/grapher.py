@@ -60,7 +60,7 @@ class ObjectTree:
         assert 'xmax' in object_map.columns, '"xmax" not in object map'
         assert 'ymin' in object_map.columns, '"ymin" not in object map'
         assert 'ymax' in object_map.columns, '"ymax" not in object map'
-        assert 'Object' in object_map.columns, '"Object" column not in object map'
+        assert 'object' in object_map.columns, '"Object" column not in object map'
         assert self.label_column in object_map.columns, \
             f'"{self.label_column}" does not exist in the object map'
 
@@ -68,8 +68,7 @@ class ObjectTree:
         assert image.ndim == 2, 'Check if the read image is greyscale.'
 
         # drop unneeded columns
-        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'Object',
-                         self.label_column}
+        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'object', self.label_column}
         un_required_cols = set(object_map.columns) - required_cols
         object_map.drop(columns=un_required_cols, inplace=True)
 
@@ -579,7 +578,7 @@ class ObjectTree:
                 graph_items.append(dst)
         alone_nodes = list(set(all_items) - set(graph_items))
         content_lst = df['text'].tolist()
-        label_lst = df['Object'].tolist()
+        label_lst = df['object'].tolist()
         if alone_nodes != []:
             content_lst = [content_lst[i] for i in range(len(content_lst)) if i not in alone_nodes]
             label_lst = [label_lst[i] for i in range(len(label_lst)) if i not in alone_nodes]
@@ -675,7 +674,7 @@ class Graph:
         # label_classes = ['buyer_name', 'seller_name', 'document_date','invoice_no','contract_no',
         # 				 'payment_terms','amount_currency', 'currency', 'amount', 'o']
         # label_classes = ['COMPANY','ADDRESS','DATE','TOTAL','O']
-        label_classes =['o','total','date','ee']
+        label_classes =['o','name','id','mag'] #total
         if self.resize:
             label_classes.append('virtual')
 
@@ -794,7 +793,7 @@ class Graph:
         # 节点初始向量表示生成模块，每个节点维度要一致，即句子编码长度相同，
         # 后期可以要改成句子的词典one-hot表达或者其他句子级别的词向量，统一长度，作为节点初始输入
         # feat_list = list(map(self._get_text_features, text_list))
-        feat_list = list(map(self._map_sentence_to_list, text_list))
+        feat_list = list(map(self._map_sentence_to_list, ['ahmad']))
         # for i in range(len(text_list)):
         #     print(text_list[i])
         #     print(code_sentence.seg_sentence(text_list[i])[0])
@@ -817,8 +816,8 @@ class Graph:
         # return adj_sparse, scipy.sparse.csr_matrix(feat_arr), la_arr
         return adj_sparse, feat_arr, la_arr
 
-def run(csv_dir,img_dir,matrix_dir) :
-    #object_map_generation.object_map(img_dir,csv_dir)
+def run(csv_dir,img_dir,matrix_dir,raw) :
+    #object_map_generation.run(img_dir,csv_dir,raw)
     if not os.path.exists(matrix_dir):
         os.makedirs(matrix_dir)
 
@@ -859,15 +858,14 @@ def run(csv_dir,img_dir,matrix_dir) :
 if __name__ == "__main__":
     print(os.getcwd())
     error_list = []
-    test_or_train = False
-
     csv_dir = "./data/train_csv"
     img_dir = "./data/train_images"
     matrix_dir = "./data/train_matrixs"
-
-    run(csv_dir,img_dir,matrix_dir)
+    raw_train= "./data/raw_train"
+    run(csv_dir,img_dir,matrix_dir,raw_train)
     csv_dir = "./data/test_csv"
     img_dir = "./data/test_images"
     matrix_dir = "./data/test_matrixs"
-    run(csv_dir, img_dir, matrix_dir)
+    raw_test = "./data/raw_test"
+    run(csv_dir, img_dir, matrix_dir,raw_test)
     print(error_list)

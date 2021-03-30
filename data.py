@@ -24,7 +24,8 @@ def sample_mask(idx, l):
     return np.array(mask, dtype=np.bool)
 # ماسك حسب اليبيل الother 0.8 والباقي 1
 def weight_mask(labels):
-    label_classes =['o','total','date','ee']
+    label_classes =['o','name','id','mag'] #total
+
     weight_dict = {}
     for k in label_classes:
         if k == 'o':

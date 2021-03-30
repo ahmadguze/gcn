@@ -1,77 +1,69 @@
-import pytesseract
-import cv2
-import numpy as np
 import os
-import matplotlib.pyplot as plt
+import pandas as pd
+from PIL import Image, ImageDraw, ImageFont
+import n
+import cv2 as cv
+def detectObject(csv,raw,name,img):
+    df = pd.read_csv(os.path.join(raw, name+'.csv'))
+
+    new_df = pd.DataFrame( columns=[ "xmin", "ymin", "xmax", "ymax", "text",'object'])
+
+    text = ""
+    xmin = 0
+    xmax = 0
+    ymin = df.loc[0, "ymin"]
+    ymax = df.loc[0, "ymax"]
+    image = Image.open(img)
+    imgWidth, imgHeight = image.size
+
+    for i in range(len(df) - 1):
+        space = abs(df.loc[i, "xmax"] - df.loc[i + 1, "xmin"]) * 100
+        # width = df.loc[i , "xmax"]-df.loc[i , "xmin"]
+        # numberOfChar = len(df.loc[i,"Object"])
+        # per = width / numberOfChar
+        if space == 0:
+            continue
+
+        Height = max((ymax - ymin), (df.loc[i, "ymax"] - df.loc[i, "ymin"])) * 100
+        rate = (Height / space)
+        text += (str)(df.loc[i, "Text"])
+        text += " "
+
+        if space < Height:
+            ymin = min(ymin, df.loc[i, "ymin"])
+            ymax = max(ymax, df.loc[i, "ymax"])
+        else:
+            xmax = df.loc[i, "xmax"]
+            new_df.loc[len(new_df.index)] = [ xmin, ymin, xmax,
+                                             ymax, text,'o']
+            draw = ImageDraw.Draw(image)
+
+            left = imgWidth * xmin
+            top = imgHeight * ymin
+            draw.rectangle([left, top, left + (imgWidth * (xmax - xmin)),
+                            top + (imgHeight * (ymax - ymin))], outline='red')
+            text = ""
+            ymin = df.loc[i + 1, "ymin"]
+            ymax = df.loc[i + 1, "ymax"]
+            xmin = df.loc[i + 1, "xmin"]
+
+    text += (str)(df.loc[i + 1, "Text"])
+    xmax = df.loc[i + 1, "xmax"]
+    new_df.loc[len(new_df.index)] = [ xmin, ymin, xmax, ymax, text,'o']
+
+    left = imgWidth * xmin
+    top = imgHeight * ymin
+    draw.rectangle([left, top, left + (imgWidth * (xmax - xmin)),
+                    top + (imgHeight * (ymax - ymin))], outline='green')
+    new_df.to_csv(os.path.join(csv, name + '.csv'),index=False)
+    image.save("./data/showimages/"+name+'.jpg')
 
 
-def object_map(imgdir,csvdir):
+def run (img,csv,raw) :
+  for file in os.listdir(img):
+      name=file[:-4]
+      print(name)
+      n.process_text_analysis(os.path.join(img, file),name,raw)
+      detectObject(csv,raw,name,os.path.join(img, file))
 
 
-  for file in os.listdir(imgdir):
-
-    csv_file = os.path.join(csvdir, file[:-4] + ".csv")
-    img_file = os.path.join(imgdir, file)
-
-    large=cv2.imread(img_file)
-
-    small = cv2.cvtColor(large, cv2.COLOR_BGR2GRAY)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-
-    grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
-
-    _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-
-    dilate = cv2.dilate(bw, kernel, iterations=1)
-    contours, hierarchy = cv2.findContours(dilate.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-    kk=file
-    print(contours)
-    mask = np.zeros(bw.shape, dtype=np.uint8)
-    i=large
-    for idx in range(len(contours)):
-        x, y, w, h = cv2.boundingRect(contours[idx])
-        mask[y:y+h, x:x+w] = 0
-        cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
-        r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
-
-        if r > 0.45 and w > 8 and h > 8:
-            cv2.rectangle(large, (x, y), (x+w-1, y+h-1), (0, 255, 0), 1)
-            roi=large[y:y+h, x:x+w]
-            import csv
-
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    image = cv2.imread(img_file, cv2.IMREAD_GRAYSCALE)
-
-    arr = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'total', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o',
-           'o', 'o',
-           'o', 'o', 'o', 'o', 'date', 'o', 'o', 'o', 'ee', 'o']
-    count =0
-    with open(csv_file, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["xmin", "ymin", "xmax","ymax","Object","text"])
-        for idx in range(len(contours)):
-            x, y, w, h = cv2.boundingRect(contours[idx])
-            cv2.rectangle(i, (x, y), (x + w, y + h), (36, 255, 12), 2)
-            mask[y:y+h, x:x+w] = 0
-            thresh= 255 - cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-            ROI = thresh[y:y + h, x:x + w]
-
-            data = pytesseract.image_to_string(ROI, lang='eng', config='--psm 6')
-            op='o'
-            if(count<len(arr)) :
-                op=arr[count]
-
-
-            writer.writerow([x,y,x+w,y+h,op,data])
-            count+=1
-            cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
-            r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
-
-    print(roi)
-if __name__ == "__main__":
-     object_map('D:\\g-project\\Document_IE-master\\graph\\data\\test_images', 'D:\\g-project\\Document_IE-master\\graph\\data\\test_csv')
-    #__________________________
