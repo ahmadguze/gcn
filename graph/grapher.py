@@ -28,7 +28,7 @@ class ObjectTree:
             >> df, obj_list = connector.connect(plot=False, export_df=False)
     '''
 
-    def __init__(self, label_column='text'):
+    def __init__(self, label_column='object'):
         self.label_column = label_column
         self.df = None
         self.img = None
@@ -60,7 +60,7 @@ class ObjectTree:
         assert 'xmax' in object_map.columns, '"xmax" not in object map'
         assert 'ymin' in object_map.columns, '"ymin" not in object map'
         assert 'ymax' in object_map.columns, '"ymax" not in object map'
-        assert 'object' in object_map.columns, '"Object" column not in object map'
+        assert 'text' in object_map.columns, '"Object" column not in object map'
         assert self.label_column in object_map.columns, \
             f'"{self.label_column}" does not exist in the object map'
 
@@ -68,7 +68,7 @@ class ObjectTree:
         assert image.ndim == 2, 'Check if the read image is greyscale.'
 
         # drop unneeded columns
-        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'object', self.label_column}
+        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'text', self.label_column}
         un_required_cols = set(object_map.columns) - required_cols
         object_map.drop(columns=un_required_cols, inplace=True)
 
@@ -817,7 +817,7 @@ class Graph:
         return adj_sparse, feat_arr, la_arr
 
 def run(csv_dir,img_dir,matrix_dir,raw) :
-    #object_map_generation.run(img_dir,csv_dir,raw)
+    object_map_generation.run(img_dir,csv_dir,raw)
     if not os.path.exists(matrix_dir):
         os.makedirs(matrix_dir)
 
