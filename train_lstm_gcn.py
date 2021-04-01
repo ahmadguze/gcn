@@ -177,12 +177,14 @@ for file_name in test_list:
         writer.writerow(['key', 'val'])
         for i in range(len(p_label)) :
             if p_label[i]!='o':
-                x,y,w,h =int(coordinate[i]['xmin']),int(coordinate[i]['ymin']),int(coordinate[i]['xmax'])-int(coordinate[i]['xmin']),int(coordinate[i]['ymax'])-int(coordinate[i]['ymin'])
+                x,y,w,h =int(float(coordinate[i]['xmin'])),int(float(coordinate[i]['ymin'])),int(float(coordinate[i]['xmax']))-int(float(coordinate[i]['xmin'])),int(float(coordinate[i]['ymax']))-int(float(coordinate[i]['ymin']))
                 thresh = 255 - cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
                 ROI = thresh[y:y + h, x:x + w]
+                cv2.imshow('sas',ROI)
+                cv2.waitKey(0)
                 data = pytesseract.image_to_string(ROI, lang='eng', config='--psm 6')
                 writer.writerow([ p_label[i],data])
-                print( p_label[i],data)
+                print( p_label[i],coordinate[i]['text'])
     count+=1
     predict_label.extend([i.item() for i in pred])
     real_label.extend([np.argmax(i) for i in test_labels])

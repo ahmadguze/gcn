@@ -774,7 +774,6 @@ class Graph:
         #
         # 		X: Feature matrix as numpy array for input graph
         # '''
-
         G = nx.from_dict_of_lists(graph_dict)
         adj_sparse = nx.adjacency_matrix(G)
         # scipy.sparse.save_npz("./sparse_adj.npz", adj_sparse)
@@ -782,7 +781,6 @@ class Graph:
         #  print(tmp)
         #  print("**************",type(adj_sparse)) # <class 'scipy.sparse.csr.csr_matrix'>
         #  preprocess the sparse adjacency matrix returned by networkx function
-        #for resize!!!!!!
         adj_arr = np.array(adj_sparse.todense())
         # print(len(adj_arr), adj_arr)
         if self.resize:
@@ -793,13 +791,14 @@ class Graph:
         # 节点初始向量表示生成模块，每个节点维度要一致，即句子编码长度相同，
         # 后期可以要改成句子的词典one-hot表达或者其他句子级别的词向量，统一长度，作为节点初始输入
         # feat_list = list(map(self._get_text_features, text_list))
-        feat_list = list(map(self._map_sentence_to_list, ['ahmad']))
+        feat_list = list(map(self._map_sentence_to_list, text_list))
         # for i in range(len(text_list)):
         #     print(text_list[i])
         #     print(code_sentence.seg_sentence(text_list[i])[0])
         #     print(feat_list[i] , len(feat_list[i]))
         # exit()
         feat_arr = np.array(feat_list)
+        # print(feat_arr)
 
         # print(len(feat_arr),feat_arr)
         if self.resize:
@@ -816,8 +815,9 @@ class Graph:
         # return adj_sparse, scipy.sparse.csr_matrix(feat_arr), la_arr
         return adj_sparse, feat_arr, la_arr
 
+
 def run(csv_dir,img_dir,matrix_dir,raw) :
-    object_map_generation.run(img_dir,csv_dir,raw)
+    #object_map_generation.run(img_dir,csv_dir,raw)
     if not os.path.exists(matrix_dir):
         os.makedirs(matrix_dir)
 

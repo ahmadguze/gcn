@@ -34,8 +34,7 @@ def detectObject(csv,raw,name,img):
             ymax = max(ymax, df.loc[i, "ymax"])
         else:
             xmax = df.loc[i, "xmax"]
-            new_df.loc[len(new_df.index)] = [ xmin, ymin, xmax,
-                                             ymax, text,'o']
+            new_df.loc[len(new_df.index)] = [ xmin*imgWidth, ymin*imgHeight, xmax * imgWidth, ymax*imgHeight, text,'o']
             draw = ImageDraw.Draw(image)
 
             left = imgWidth * xmin
@@ -49,7 +48,7 @@ def detectObject(csv,raw,name,img):
 
     text += (str)(df.loc[i + 1, "Text"])
     xmax = df.loc[i + 1, "xmax"]
-    new_df.loc[len(new_df.index)] = [ xmin, ymin, xmax, ymax, text,'o']
+    new_df.loc[len(new_df.index)] = [ xmin*imgWidth, ymin*imgHeight, xmax * imgWidth, ymax*imgHeight, text,'o']
 
     left = imgWidth * xmin
     top = imgHeight * ymin
